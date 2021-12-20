@@ -150,28 +150,29 @@ describe.only( 'DocumentListCommand', () => {
 
 					command.execute( { forceValue: true } );
 
-					expect( getData( model ) ).to.equal( '<listItem listIndent="0" listType="bulleted">fo[]o</listItem>' );
+					expect( getData( model ) ).to.equal(
+						'<paragraph listIndent="0" listItemId="e00000000000000000000000000000009" listType="bulleted">fo[]o</paragraph>' );
 
 					command.execute( { forceValue: true } );
 
-					expect( getData( model ) ).to.equal( '<listItem listIndent="0" listType="bulleted">fo[]o</listItem>' );
+					expect( getData( model ) ).to.equal(
+						'<paragraph listIndent="0" listItemId="e00000000000000000000000000000009" listType="bulleted">fo[]o</paragraph>' );
 				} );
 
 				it( 'should force converting into the paragraph if the `options.forceValue` is set to `false`', () => {
-					setData( model, '<listItem listIndent="0" listType="bulleted">fo[]o</listItem>' );
+					setData( model, '<paragraph listIndent="0" listType="bulleted">fo[]o</paragraph>' );
 
 					command.execute( { forceValue: false } );
 
-					// Attributes will be removed by post fixer.
-					expect( getData( model ) ).to.equal( '<paragraph listIndent="0" listType="bulleted">fo[]o</paragraph>' );
+					expect( getData( model ) ).to.equal( '<paragraph>fo[]o</paragraph>' );
 
 					command.execute( { forceValue: false } );
 
-					expect( getData( model ) ).to.equal( '<paragraph listIndent="0" listType="bulleted">fo[]o</paragraph>' );
+					expect( getData( model ) ).to.equal( '<paragraph>fo[]o</paragraph>' );
 				} );
 			} );
 
-			describe.only( 'collapsed selection', () => {
+			describe( 'collapsed selection', () => {
 				describe( 'when turning on', () => {
 					it( 'should turn the closest block into a list item', () => {
 						setData( model, '<paragraph>fo[]o</paragraph>' );
@@ -194,7 +195,7 @@ describe.only( 'DocumentListCommand', () => {
 					} );
 				} );
 
-				describe( 'when turning off', () => {
+				describe.only( 'when turning off', () => {
 					it( 'should strip the list attributes from the closest list item (single list item)', () => {
 						setData( model, '<paragraph listIndent="0" listItemId="a" listType="bulleted">fo[]o</paragraph>' );
 
@@ -203,78 +204,27 @@ describe.only( 'DocumentListCommand', () => {
 						expect( getData( model ) ).to.equal( '<paragraph>fo[]o</paragraph>' );
 					} );
 
-					it( 'should strip the list attributes from the closest item (multiple list items, at the start)', () => {
+					it( 'should strip the list attributes from the closest item (multiple list items, selection in first item)', () => {
 						setData( model,
 							'<paragraph listIndent="0" listItemId="a" listType="bulleted">f[o]o</paragraph>' +
-							'<paragraph listIndent="0" listItemId="a" listType="bulleted">bar</paragraph>' +
-							'<paragraph listIndent="0" listItemId="a" listType="bulleted">baz</paragraph>'
-						);
-
-						command.execute();
-
-						expect( getData( model ) ).to.equal(
-							'<paragraph>foo</paragraph>' +
-							'<paragraph listIndent="0" listItemId="a" listType="bulleted">bar</paragraph>' +
-							'<paragraph listIndent="0" listItemId="a" listType="bulleted">baz</paragraph>'
-						);
-					} );
-
-					it( 'should strip the list attributes from the closest item (multiple list items, in the middle)', () => {
-						setData( model,
-							'<paragraph listIndent="0" listItemId="a" listType="bulleted">foo</paragraph>' +
-							'<paragraph listIndent="0" listItemId="a" listType="bulleted">b[a]r</paragraph>' +
-							'<paragraph listIndent="0" listItemId="a" listType="bulleted">baz</paragraph>'
-						);
-
-						command.execute();
-
-						expect( getData( model ) ).to.equal(
-							'<paragraph listIndent="0" listItemId="a" listType="bulleted">foo</paragraph>' +
-							'<paragraph>b[a]r</paragraph>' +
-							'<paragraph listIndent="0" listItemId="b" listType="bulleted">baz</paragraph>'
-						);
-					} );
-
-					it( 'should strip the list attributes from the closest item (multiple list items, at the end)', () => {
-						setData( model,
-							'<paragraph listIndent="0" listItemId="a" listType="bulleted">foo</paragraph>' +
-							'<paragraph listIndent="0" listItemId="a" listType="bulleted">bar</paragraph>' +
-							'<paragraph listIndent="0" listItemId="a" listType="bulleted">b[a]z</paragraph>'
-						);
-
-						command.execute();
-
-						expect( getData( model ) ).to.equal(
-							'<paragraph listIndent="0" listItemId="a" listType="bulleted">foo</paragraph>' +
-							'<paragraph listIndent="0" listItemId="a" listType="bulleted">bar</paragraph>' +
-							'<paragraph>b[a]z</paragraph>'
-						);
-					} );
-
-					it( 'should strip the list attributes from the closest item and decrease indent of children (at the start)', () => {
-						setData( model,
-							'<paragraph listIndent="0" listItemId="a" listType="bulleted">f[o]o</paragraph>' +
-							'<paragraph listIndent="1" listItemId="a.a" listType="bulleted">bar</paragraph>' +
-							'<paragraph listIndent="1" listItemId="a.a.a" listType="bulleted">baz</paragraph>' +
-							'<paragraph listIndent="2" listItemId="a.a.a.a" listType="bulleted">qux</paragraph>'
+							'<paragraph listIndent="0" listItemId="b" listType="bulleted">bar</paragraph>' +
+							'<paragraph listIndent="0" listItemId="c" listType="bulleted">baz</paragraph>'
 						);
 
 						command.execute();
 
 						expect( getData( model ) ).to.equal(
 							'<paragraph>f[o]o</paragraph>' +
-							'<paragraph listIndent="0" listItemId="a.a" listType="bulleted">bar</paragraph>' +
-							'<paragraph listIndent="0" listItemId="a.a.a" listType="bulleted">baz</paragraph>' +
-							'<paragraph listIndent="1" listItemId="a.a.a.a" listType="bulleted">qux</paragraph>'
+							'<paragraph listIndent="0" listItemId="b" listType="bulleted">bar</paragraph>' +
+							'<paragraph listIndent="0" listItemId="c" listType="bulleted">baz</paragraph>'
 						);
 					} );
 
-					it( 'should strip the list attributes from the closest item and decrease indent of children (in the middle)', () => {
+					it( 'should strip the list attributes from the closest item (multiple list items, selection in the middle item)', () => {
 						setData( model,
 							'<paragraph listIndent="0" listItemId="a" listType="bulleted">foo</paragraph>' +
-							'<paragraph listIndent="0" listItemId="a" listType="bulleted">b[a]r</paragraph>' +
-							'<paragraph listIndent="1" listItemId="a.a" listType="bulleted">baz</paragraph>' +
-							'<paragraph listIndent="2" listItemId="a.a.a" listType="bulleted">qux</paragraph>'
+							'<paragraph listIndent="0" listItemId="b" listType="bulleted">b[a]r</paragraph>' +
+							'<paragraph listIndent="0" listItemId="c" listType="bulleted">baz</paragraph>'
 						);
 
 						command.execute();
@@ -282,13 +232,84 @@ describe.only( 'DocumentListCommand', () => {
 						expect( getData( model ) ).to.equal(
 							'<paragraph listIndent="0" listItemId="a" listType="bulleted">foo</paragraph>' +
 							'<paragraph>b[a]r</paragraph>' +
-							'<paragraph listIndent="0" listItemId="a.a" listType="bulleted">baz</paragraph>' +
-							'<paragraph listIndent="1" listItemId="a.a.a" listType="bulleted">qux</paragraph>'
+							'<paragraph listIndent="0" listItemId="c" listType="bulleted">baz</paragraph>'
 						);
 					} );
 
-					describe( 'with blocks inside list items', () => {
+					it( 'should strip the list attributes from the closest item (multiple list items, selection in the last item)', () => {
+						setData( model,
+							'<paragraph listIndent="0" listItemId="a" listType="bulleted">foo</paragraph>' +
+							'<paragraph listIndent="0" listItemId="b" listType="bulleted">bar</paragraph>' +
+							'<paragraph listIndent="0" listItemId="c" listType="bulleted">b[a]z</paragraph>'
+						);
 
+						command.execute();
+
+						expect( getData( model ) ).to.equal(
+							'<paragraph listIndent="0" listItemId="a" listType="bulleted">foo</paragraph>' +
+							'<paragraph listIndent="0" listItemId="b" listType="bulleted">bar</paragraph>' +
+							'<paragraph>b[a]z</paragraph>'
+						);
+					} );
+
+					describe( 'with nested lists inside', () => {
+						it( 'should strip the list attributes from the closest item and decrease indent of children (selection in the first item)', () => {
+							setData( model,
+								'<paragraph listIndent="0" listItemId="a" listType="bulleted">f[o]o</paragraph>' +
+								'<paragraph listIndent="1" listItemId="a.a" listType="bulleted">bar</paragraph>' +
+								'<paragraph listIndent="1" listItemId="a.a.a" listType="bulleted">baz</paragraph>' +
+								'<paragraph listIndent="2" listItemId="a.a.a.a" listType="bulleted">qux</paragraph>'
+							);
+
+							command.execute();
+
+							expect( getData( model ) ).to.equal(
+								'<paragraph>f[o]o</paragraph>' +
+								'<paragraph listIndent="0" listItemId="a.a" listType="bulleted">bar</paragraph>' +
+								'<paragraph listIndent="0" listItemId="a.a.a" listType="bulleted">baz</paragraph>' +
+								'<paragraph listIndent="1" listItemId="a.a.a.a" listType="bulleted">qux</paragraph>'
+							);
+						} );
+
+						it( 'should strip the list attributes from the closest item and decrease indent of children (selection in the middle item)', () => {
+							setData( model,
+								'<paragraph listIndent="0" listItemId="a" listType="bulleted">foo</paragraph>' +
+								'<paragraph listIndent="0" listItemId="a" listType="bulleted">b[a]r</paragraph>' +
+								'<paragraph listIndent="1" listItemId="a.a" listType="bulleted">baz</paragraph>' +
+								'<paragraph listIndent="2" listItemId="a.a.a" listType="bulleted">qux</paragraph>'
+							);
+
+							command.execute();
+
+							expect( getData( model ) ).to.equal(
+								'<paragraph listIndent="0" listItemId="a" listType="bulleted">foo</paragraph>' +
+								'<paragraph>b[a]r</paragraph>' +
+								'<paragraph listIndent="0" listItemId="a.a" listType="bulleted">baz</paragraph>' +
+								'<paragraph listIndent="1" listItemId="a.a.a" listType="bulleted">qux</paragraph>'
+							);
+						} );
+					} );
+
+					describe( 'with blocks inside list items', () => {
+						it( 'should strip the list attributes from the closest list item and all blocks inside (selection in the first item)', () => {
+							setData( model,
+								'<paragraph listIndent="0" listItemId="a" listType="bulleted">fo[]o</paragraph>' +
+								'<paragraph listIndent="0" listItemId="a" listType="bulleted">bar</paragraph>' +
+								'<paragraph listIndent="0" listItemId="a" listType="bulleted">baz</paragraph>'
+							);
+
+							command.execute();
+
+							expect( getData( model ) ).to.equal(
+								'<paragraph>fo[]o</paragraph>' +
+								'<paragraph>bar</paragraph>' +
+								'<paragraph>baz</paragraph>'
+							);
+						} );
+
+						describe( 'with nested list items', () => {
+
+						} );
 					} );
 				} );
 			} );
@@ -297,14 +318,14 @@ describe.only( 'DocumentListCommand', () => {
 				beforeEach( () => {
 					setData(
 						model,
-						'<listItem listIndent="0" listType="bulleted">---</listItem>' +
-						'<listItem listIndent="0" listType="bulleted">---</listItem>' +
+						'<paragraph listIndent="0" listType="bulleted">---</paragraph>' +
+						'<paragraph listIndent="0" listType="bulleted">---</paragraph>' +
 						'<paragraph>---</paragraph>' +
 						'<paragraph>---</paragraph>' +
-						'<listItem listIndent="0" listType="numbered">---</listItem>' +
-						'<listItem listIndent="0" listType="numbered">---</listItem>' +
-						'<listItem listIndent="1" listType="bulleted">---</listItem>' +
-						'<listItem listIndent="2" listType="bulleted">---</listItem>'
+						'<paragraph listIndent="0" listType="numbered">---</paragraph>' +
+						'<paragraph listIndent="0" listType="numbered">---</paragraph>' +
+						'<paragraph listIndent="1" listType="bulleted">---</paragraph>' +
+						'<paragraph listIndent="2" listType="bulleted">---</paragraph>'
 					);
 				} );
 
@@ -326,9 +347,9 @@ describe.only( 'DocumentListCommand', () => {
 					command.execute();
 
 					expect( getData( model ) ).to.equal(
-						'<listItem listIndent="0" listType="bulleted">a[bc</listItem>' +
+						'<paragraph listIndent="0" listType="bulleted">a[bc</paragraph>' +
 						'<restricted><fooBlock></fooBlock></restricted>' +
-						'<listItem listIndent="0" listType="bulleted">de]f</listItem>'
+						'<paragraph listIndent="0" listType="bulleted">de]f</paragraph>'
 					);
 				} );
 
@@ -349,9 +370,9 @@ describe.only( 'DocumentListCommand', () => {
 					command.execute();
 
 					expect( getData( model ) ).to.equal(
-						'<listItem listIndent="0" listType="bulleted">a[bc</listItem>' +
+						'<paragraph listIndent="0" listType="bulleted">a[bc</paragraph>' +
 						'<imageBlock></imageBlock>' +
-						'<listItem listIndent="0" listType="bulleted">de]f</listItem>'
+						'<paragraph listIndent="0" listType="bulleted">de]f</paragraph>'
 					);
 				} );
 
@@ -368,14 +389,14 @@ describe.only( 'DocumentListCommand', () => {
 					command.execute();
 
 					const expectedData =
-						'<listItem listIndent="0" listType="bulleted">---</listItem>' +
-						'<listItem listIndent="0" listType="bulleted">---</listItem>' +
-						'<listItem listIndent="0" listType="bulleted">[---</listItem>' +
-						'<listItem listIndent="0" listType="bulleted">---]</listItem>' +
-						'<listItem listIndent="0" listType="numbered">---</listItem>' +
-						'<listItem listIndent="0" listType="numbered">---</listItem>' +
-						'<listItem listIndent="1" listType="bulleted">---</listItem>' +
-						'<listItem listIndent="2" listType="bulleted">---</listItem>';
+						'<paragraph listIndent="0" listType="bulleted">---</paragraph>' +
+						'<paragraph listIndent="0" listType="bulleted">---</paragraph>' +
+						'<paragraph listIndent="0" listType="bulleted">[---</paragraph>' +
+						'<paragraph listIndent="0" listType="bulleted">---]</paragraph>' +
+						'<paragraph listIndent="0" listType="numbered">---</paragraph>' +
+						'<paragraph listIndent="0" listType="numbered">---</paragraph>' +
+						'<paragraph listIndent="1" listType="bulleted">---</paragraph>' +
+						'<paragraph listIndent="2" listType="bulleted">---</paragraph>';
 
 					expect( getData( model ) ).to.equal( expectedData );
 				} );
@@ -394,14 +415,14 @@ describe.only( 'DocumentListCommand', () => {
 					command.execute();
 
 					const expectedData =
-						'<listItem listIndent="0" listType="bulleted">---</listItem>' +
+						'<paragraph listIndent="0" listType="bulleted">---</paragraph>' +
 						'<paragraph listIndent="0" listType="bulleted">[---</paragraph>' + // Attributes will be removed by post fixer.
 						'<paragraph>---</paragraph>' +
 						'<paragraph>---</paragraph>' +
 						'<paragraph listIndent="0" listType="numbered">---]</paragraph>' + // Attributes will be removed by post fixer.
-						'<listItem listIndent="0" listType="numbered">---</listItem>' +
-						'<listItem listIndent="1" listType="bulleted">---</listItem>' +
-						'<listItem listIndent="2" listType="bulleted">---</listItem>';
+						'<paragraph listIndent="0" listType="numbered">---</paragraph>' +
+						'<paragraph listIndent="1" listType="bulleted">---</paragraph>' +
+						'<paragraph listIndent="2" listType="bulleted">---</paragraph>';
 
 					expect( getData( model ) ).to.equal( expectedData );
 				} );
@@ -419,14 +440,14 @@ describe.only( 'DocumentListCommand', () => {
 					command.execute();
 
 					const expectedData =
-						'<listItem listIndent="0" listType="bulleted">---</listItem>' +
-						'<listItem listIndent="0" listType="bulleted">---</listItem>' +
+						'<paragraph listIndent="0" listType="bulleted">---</paragraph>' +
+						'<paragraph listIndent="0" listType="bulleted">---</paragraph>' +
 						'<paragraph>---</paragraph>' +
 						'<paragraph>---</paragraph>' +
-						'<listItem listIndent="0" listType="bulleted">[---</listItem>' +
-						'<listItem listIndent="0" listType="bulleted">---</listItem>' +
-						'<listItem listIndent="1" listType="bulleted">]---</listItem>' +
-						'<listItem listIndent="2" listType="bulleted">---</listItem>';
+						'<paragraph listIndent="0" listType="bulleted">[---</paragraph>' +
+						'<paragraph listIndent="0" listType="bulleted">---</paragraph>' +
+						'<paragraph listIndent="1" listType="bulleted">]---</paragraph>' +
+						'<paragraph listIndent="2" listType="bulleted">---</paragraph>';
 
 					expect( getData( model ) ).to.equal( expectedData );
 				} );
@@ -444,14 +465,14 @@ describe.only( 'DocumentListCommand', () => {
 					command.execute();
 
 					const expectedData =
-						'<listItem listIndent="0" listType="bulleted">---</listItem>' +
+						'<paragraph listIndent="0" listType="bulleted">---</paragraph>' +
 						'<paragraph listIndent="0" listType="bulleted">[---</paragraph>' + // Attributes will be removed by post fixer.
 						'<paragraph>---</paragraph>' +
 						'<paragraph>---</paragraph>' +
 						'<paragraph listIndent="0" listType="numbered">---</paragraph>' + // Attributes will be removed by post fixer.
 						'<paragraph listIndent="0" listType="numbered">---]</paragraph>' + // Attributes will be removed by post fixer.
-						'<listItem listIndent="0" listType="bulleted">---</listItem>' +
-						'<listItem listIndent="1" listType="bulleted">---</listItem>';
+						'<paragraph listIndent="0" listType="bulleted">---</paragraph>' +
+						'<paragraph listIndent="1" listType="bulleted">---</paragraph>';
 
 					expect( getData( model ) ).to.equal( expectedData );
 				} );
@@ -460,19 +481,19 @@ describe.only( 'DocumentListCommand', () => {
 				it( 'should change type of all items in nested list if one of items changed', () => {
 					setData(
 						model,
-						'<listItem listIndent="0" listType="numbered">---</listItem>' +
-						'<listItem listIndent="1" listType="numbered">---</listItem>' +
-						'<listItem listIndent="2" listType="numbered">---</listItem>' +
-						'<listItem listIndent="1" listType="numbered">---</listItem>' +
-						'<listItem listIndent="2" listType="numbered">---</listItem>' +
-						'<listItem listIndent="2" listType="numbered">-[-</listItem>' +
-						'<listItem listIndent="1" listType="numbered">---</listItem>' +
-						'<listItem listIndent="1" listType="numbered">---</listItem>' +
-						'<listItem listIndent="0" listType="numbered">---</listItem>' +
-						'<listItem listIndent="1" listType="numbered">-]-</listItem>' +
-						'<listItem listIndent="1" listType="numbered">---</listItem>' +
-						'<listItem listIndent="2" listType="numbered">---</listItem>' +
-						'<listItem listIndent="0" listType="numbered">---</listItem>'
+						'<paragraph listIndent="0" listType="numbered">---</paragraph>' +
+						'<paragraph listIndent="1" listType="numbered">---</paragraph>' +
+						'<paragraph listIndent="2" listType="numbered">---</paragraph>' +
+						'<paragraph listIndent="1" listType="numbered">---</paragraph>' +
+						'<paragraph listIndent="2" listType="numbered">---</paragraph>' +
+						'<paragraph listIndent="2" listType="numbered">-[-</paragraph>' +
+						'<paragraph listIndent="1" listType="numbered">---</paragraph>' +
+						'<paragraph listIndent="1" listType="numbered">---</paragraph>' +
+						'<paragraph listIndent="0" listType="numbered">---</paragraph>' +
+						'<paragraph listIndent="1" listType="numbered">-]-</paragraph>' +
+						'<paragraph listIndent="1" listType="numbered">---</paragraph>' +
+						'<paragraph listIndent="2" listType="numbered">---</paragraph>' +
+						'<paragraph listIndent="0" listType="numbered">---</paragraph>'
 					);
 
 					// * ------				<-- do not fix, top level item
@@ -492,19 +513,19 @@ describe.only( 'DocumentListCommand', () => {
 					command.execute();
 
 					const expectedData =
-						'<listItem listIndent="0" listType="numbered">---</listItem>' +
-						'<listItem listIndent="1" listType="bulleted">---</listItem>' +
-						'<listItem listIndent="2" listType="numbered">---</listItem>' +
-						'<listItem listIndent="1" listType="bulleted">---</listItem>' +
-						'<listItem listIndent="2" listType="bulleted">---</listItem>' +
-						'<listItem listIndent="2" listType="bulleted">-[-</listItem>' +
-						'<listItem listIndent="1" listType="bulleted">---</listItem>' +
-						'<listItem listIndent="1" listType="bulleted">---</listItem>' +
-						'<listItem listIndent="0" listType="bulleted">---</listItem>' +
-						'<listItem listIndent="1" listType="bulleted">-]-</listItem>' +
-						'<listItem listIndent="1" listType="bulleted">---</listItem>' +
-						'<listItem listIndent="2" listType="numbered">---</listItem>' +
-						'<listItem listIndent="0" listType="numbered">---</listItem>';
+						'<paragraph listIndent="0" listType="numbered">---</paragraph>' +
+						'<paragraph listIndent="1" listType="bulleted">---</paragraph>' +
+						'<paragraph listIndent="2" listType="numbered">---</paragraph>' +
+						'<paragraph listIndent="1" listType="bulleted">---</paragraph>' +
+						'<paragraph listIndent="2" listType="bulleted">---</paragraph>' +
+						'<paragraph listIndent="2" listType="bulleted">-[-</paragraph>' +
+						'<paragraph listIndent="1" listType="bulleted">---</paragraph>' +
+						'<paragraph listIndent="1" listType="bulleted">---</paragraph>' +
+						'<paragraph listIndent="0" listType="bulleted">---</paragraph>' +
+						'<paragraph listIndent="1" listType="bulleted">-]-</paragraph>' +
+						'<paragraph listIndent="1" listType="bulleted">---</paragraph>' +
+						'<paragraph listIndent="2" listType="numbered">---</paragraph>' +
+						'<paragraph listIndent="0" listType="numbered">---</paragraph>';
 
 					expect( getData( model ) ).to.equal( expectedData );
 				} );
@@ -522,8 +543,8 @@ describe.only( 'DocumentListCommand', () => {
 
 				expect( getData( model ) ).to.equal(
 					'<paragraph>Foo 1.</paragraph>' +
-					'<listItem listIndent="0" listType="bulleted">[Foo 2.</listItem>' +
-					'<listItem listIndent="0" listType="bulleted">Foo 3.]</listItem>' +
+					'<paragraph listIndent="0" listType="bulleted">[Foo 2.</paragraph>' +
+					'<paragraph listIndent="0" listType="bulleted">Foo 3.]</paragraph>' +
 					'<paragraph>Foo 4.</paragraph>'
 				);
 
